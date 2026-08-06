@@ -8,6 +8,7 @@ The application follows a modern client-server architecture with a React fronten
 
 ---
 ## Demo
+https://menu-management-7yh4b27th-kalidindi-nikhila.vercel.app/login
 
 # Tech Stack
 
