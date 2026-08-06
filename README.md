@@ -1,164 +1,286 @@
-# Hotel Management POS — Phase 1
+# Menu Management System
 
-Production-grade restaurant POS MVP: billing, table management, KOT, GST billing, payments, and day-end reports.
+A full-stack restaurant menu management system that enables restaurant owners to efficiently manage menus, categories, orders, billing, QR menus, and staff through an intuitive web application.
 
-**Architecture:** See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for system diagrams, microservices plan, and full tech stack.
+## Architecture
 
-## Demo Video
+The application follows a modern client-server architecture with a React frontend, NestJS backend, PostgreSQL database, and Prisma ORM for efficient database management.
 
-<p align="center">
-  <a href="images/demo.mp4">
-    <img src="images/demo-preview.gif" alt="Demo video preview" width="100%" />
-  </a>
-</p>
+---
+## Demo
 
-Click the preview above to open the demo video.
-
-## Stack
+# Tech Stack
 
 | Layer | Technology |
 |-------|------------|
-| API | NestJS + Prisma + PostgreSQL |
-| POS UI | React + Vite + Tailwind CSS |
-| Auth | JWT |
+| Frontend | React + Vite + Tailwind CSS |
+| Backend | NestJS |
+| Database | PostgreSQL |
+| ORM | Prisma |
+| Authentication | JWT |
+| API Testing | Postman |
 
-## Quick Start
+---
 
-You can run everything as **local processes** — Docker is optional.
+# Features
 
-### Option A: Local PostgreSQL (recommended on Mac)
+### Authentication
+- Secure JWT-based Login
+- Restaurant Registration
+- Role-Based Access Control
+- Staff PIN Switching
 
-If you have Homebrew Postgres:
+### Menu Management
+- Create Menu Categories
+- Add, Update, Delete Menu Items
+- Item Variations
+- Add-ons Management
+- Price Management
 
-```bash
-brew services start postgresql@14   # or your installed version
+### Table Management
+- Floor Plan Management
+- Table Status Tracking
+- Table Availability
 
-# One-time setup (create DB user)
-psql postgres -c "CREATE USER hotel WITH PASSWORD 'hotel' CREATEDB;"
-psql postgres -c "CREATE DATABASE hotelmanagement OWNER hotel;"
+### Order Management
+- Create Orders
+- Add/Remove Items
+- Kitchen Order Ticket (KOT)
+- Order Status Tracking
+
+### Billing
+- GST Calculation
+- Discount Support
+- Split Payments
+- Invoice Generation
+- Bill History
+
+### Reports
+- Daily Sales Report
+- Payment Summary
+- Item-wise Sales
+- Revenue Analytics
+
+### QR Menu
+- QR Code Generation
+- Digital Menu Viewing
+- Contactless Menu Access
+
+---
+
+# Prerequisites
+
+Before running the project, install:
+
+- Node.js (18+)
+- PostgreSQL
+- Git
+- Visual Studio Code
+
+Verify installation:
+
+```powershell
+node -v
+npm -v
+git --version
+psql --version
 ```
 
-### Option B: Docker PostgreSQL
+---
 
-```bash
-docker compose up -d
+# Installation
+
+Clone the repository:
+
+```powershell
+git clone https://github.com/kalidindinikhila/MenuManagement.git
+
+cd MenuManagement
 ```
 
-### Backend (terminal 1)
+---
 
-```bash
+# Database Setup
+
+Create a PostgreSQL database:
+
+```sql
+CREATE DATABASE menumanagement;
+```
+
+Create a user:
+
+```sql
+CREATE USER menuadmin WITH PASSWORD 'password';
+GRANT ALL PRIVILEGES ON DATABASE menumanagement TO menuadmin;
+```
+
+---
+
+# Backend Setup
+
+```powershell
 cd backend
-cp .env.example .env   # if .env doesn't exist
 npm install
+copy .env.example .env
+```
+
+Configure `.env`
+
+```env
+DATABASE_URL="postgresql://menuadmin:password@localhost:5432/menumanagement"
+
+JWT_SECRET=your_secret_key
+```
+
+Push the database schema:
+
+```powershell
 npx prisma db push
+```
+
+Seed the database:
+
+```powershell
 npm run db:seed
+```
+
+Run backend:
+
+```powershell
 npm run start:dev
 ```
 
-API runs at `http://localhost:3000/api`
+Backend URL
 
-### Frontend (terminal 2)
+```
+http://localhost:3000/api
+```
 
-```bash
+---
+
+# Frontend Setup
+
+Open another terminal:
+
+```powershell
 cd frontend
 npm install
 npm run dev
 ```
 
-POS runs at `http://localhost:5173`
-
-### Demo login
-
-- **Email:** `admin@demo.com`
-- **Password:** `password123`
-
-### Onboard a new restaurant (UI)
-
-1. Open http://localhost:5173/register
-2. Fill business name, outlet name, owner details
-3. Complete the **Setup wizard** (Restaurant → Floor Plan → Menu)
-4. Go live on the Floor Plan
-
-Or from login page: **Register here** → setup wizard → POS.
-
-## Phase 1 Features
-
-- **Auth** — JWT login, multi-tenant (organization → outlet)
-- **Staff & Roles** — Petpooja-style role templates (Owner, Manager, Cashier, Captain, Kitchen), staff CRUD, PIN switch on shared terminal, API + UI permission enforcement
-- **Floor plan** — Areas, tables with status (vacant / occupied / billing)
-- **Menu** — Categories, items, variations, add-ons
-- **Orders** — Add items, notes, remove pending items
-- **KOT** — Send to kitchen, print KOT (browser print)
-- **Billing** — GST tax, discount %/₹, split payments (cash/UPI/card)
-- **Bill History** — Search, filter, reprint, day-end summary (Petpooja-style sales register)
-- **Reports** — Day sales, payment breakdown, item-wise sales
-- **QR Menu (view-only)** — Per-table QR codes; guests scan to browse live menu on phone (Petpooja Scan & Order — view mode)
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/auth/login` | Login |
-| POST | `/api/auth/register` | Register org + outlet |
-| GET | `/api/auth/me` | Current user + permissions |
-| POST | `/api/auth/pin-switch` | Switch staff on shared POS (4-digit PIN) |
-| GET | `/api/users` | List staff (Owner only) |
-| POST | `/api/users` | Add staff member |
-| PATCH | `/api/users/:id` | Update role / activate / deactivate |
-| POST | `/api/users/:id/reset-password` | Reset staff password |
-| GET | `/api/outlets/:id/floor` | Floor plan |
-| GET | `/api/outlets/:id/menu` | Full menu |
-| POST | `/api/orders/tables/:tableId/outlets/:outletId` | Open order |
-| POST | `/api/orders/:id/items` | Add item |
-| POST | `/api/orders/:id/kot` | Send KOT |
-| GET | `/api/billing/orders/:id/preview` | Bill preview |
-| POST | `/api/billing/orders/:id/settle` | Settle bill |
-| GET | `/api/billing/outlets/:id/bills` | Bill history (search, filter, paginate) |
-| GET | `/api/billing/outlets/:id/bills/day-end` | Day-end biller-wise summary |
-| GET | `/api/billing/bills/:billId` | Bill detail + reprint data |
-| GET | `/api/public/menu/:qrToken` | Guest menu (no login) |
-| GET | `/api/outlets/:id/qr-menu` | Table QR codes for printing |
-| PATCH | `/api/outlets/:id/qr-menu` | Enable/disable QR menu |
-
-## Project Structure
+Frontend URL
 
 ```
-hotelmanagement/
+http://localhost:5173
+```
+
+---
+
+# Demo Login
+
+Email
+
+```
+admin@demo.com
+```
+
+Password
+
+```
+password123
+```
+
+---
+
+# Project Structure
+
+```
+MenuManagement/
+│
 ├── backend/
-│   ├── prisma/schema.prisma   # Database schema
-│   ├── prisma/seed.ts         # Demo data
-│   └── src/
-│       ├── auth/              # Authentication
-│       ├── menus/             # Menu management
-│       ├── tables/            # Floor plan
-│       ├── orders/            # Order + KOT
-│       ├── billing/           # Billing + payments
-│       └── reports/           # Day-end reports
+│   ├── prisma/
+│   ├── src/
+│   │   ├── auth/
+│   │   ├── billing/
+│   │   ├── menus/
+│   │   ├── orders/
+│   │   ├── reports/
+│   │   ├── tables/
+│   │   └── users/
+│   └── package.json
+│
 ├── frontend/
-│   └── src/
-│       ├── pages/             # Login, Floor, Order, Reports
-│       └── components/        # Modals, print helpers
-└── docker-compose.yml         # PostgreSQL
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── assets/
+│   └── package.json
+│
+├── docs/
+├── docker-compose.yml
+└── README.md
 ```
 
-## POS Workflow
+---
 
-1. **Login** → select outlet (auto-selected for demo)
-2. **Floor** → tap a vacant table to open order
-3. **Order** → add menu items → **Send KOT** (prints kitchen ticket)
-4. **Bill & Pay** → apply discount → record payment → print invoice
-5. **Reports** → view day-end summary
+# Workflow
 
-## Production Notes
+1. Login to the application.
+2. Register a restaurant (first-time setup).
+3. Create menu categories.
+4. Add menu items.
+5. Manage restaurant tables.
+6. Create customer orders.
+7. Send Kitchen Order Tickets (KOT).
+8. Generate bills.
+9. Track sales and reports.
 
-- Change `JWT_SECRET` in production
-- Use `prisma migrate deploy` instead of `db push` in production
-- Run `npm run build` for both backend and frontend
-- Backend: `npm run start:prod`
-- Frontend: serve `frontend/dist` via nginx/CDN
+---
 
-## Next Phases
+# API Modules
 
-- Phase 2b: QR guest ordering (cart + staff validation + KOT)
-- Phase 3: Captain app + KDS kitchen screen
-- Phase 4: Inventory + recipe auto-deduction
+- Authentication
+- Users
+- Menu
+- Orders
+- Billing
+- Reports
+- QR Menu
+- Table Management
+
+---
+
+# Production
+
+Backend
+
+```powershell
+npm run build
+npm run start:prod
+```
+
+Frontend
+
+```powershell
+npm run build
+```
+
+Production files are generated inside:
+
+```
+frontend/dist
+```
+
+---
+
+# Future Enhancements
+
+- Online Ordering
+- Customer Mobile Application
+- Kitchen Display System (KDS)
+- Inventory Management
+- AI-based Sales Analytics
+- Loyalty & Rewards Program
+
+---
