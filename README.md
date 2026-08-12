@@ -6,10 +6,6 @@ A full-stack restaurant menu management system that enables restaurant owners to
 
 The application follows a modern client-server architecture with a React frontend, NestJS backend, PostgreSQL database, and Prisma ORM for efficient database management.
 
----
-## Demo
-https://menu-management-peach.vercel.app/login
-
 # Tech Stack
 
 | Layer | Technology |
